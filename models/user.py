@@ -4,20 +4,24 @@ from datetime import date
 
 class UserBase(BaseModel):
     name: str
-    password: str
     is_premium: bool
-    join_date: date
-    genres: Optional[list] = None
+    genres: Optional[list[str]] = None
     avatar_path: Optional[str] = None
 
 class UserCreate(UserBase):
     userId: int
+    password: str
 
 class UserUpdate(UserBase):
     name: Optional[str] = None
+    password: Optional[str] = None
+    is_premium: Optional[bool] = None
+    genres: Optional[list[str]] = None
+    avatar_path: Optional[str] = None
 
 class User(UserBase):
     userId: int
+    join_date: date
 
     class Config:
         from_attributes = True

@@ -71,7 +71,7 @@ class UserRepository:
         if not fields:
             return self.find_by_id(user_id)
 
-        set_clause = ", ".join(f"p.{k} = ${k}" for k in fields)
+        set_clause = ", ".join(f"u.{k} = ${k}" for k in fields)
 
         extra_label = ""
         with self.driver.session() as session:

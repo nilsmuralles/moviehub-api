@@ -1,6 +1,7 @@
 from models.user import User, UserCreate, UserUpdate
 from repository.user import UserRepository
 from passlib.context import CryptContext
+from datetime import date
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -29,6 +30,7 @@ class UserService:
             raise ValueError(f"User with id {data.userId} already exists")
         
         data.password = hash_password(data.password)
+        data.join_date = date.today()
 
         record = self.repository.create(data)
         return User(**record)
