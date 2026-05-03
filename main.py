@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from database import get_driver, close_driver
-from routers import movie, person, user
+from routers import movie, person, user, genre, company, review
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -14,3 +14,6 @@ app = FastAPI(title="Movies API", lifespan=lifespan)
 app.include_router(movie.router)
 app.include_router(person.router)
 app.include_router(user.router)
+app.include_router(company.router)
+app.include_router(review.router)
+app.include_router(genre.router)

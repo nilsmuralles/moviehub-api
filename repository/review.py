@@ -55,3 +55,56 @@ class ReviewRepository:
             )
             record = result.single()
             return dict(record["r"]) if record else None
+    def find_all(self, skip: int, limit: int) -> list[dict]:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (r:Review)
+                OPTIONAL MATCH (u:User)-[:WROTE]->(r)
+                OPTIONAL MATCH (r)-[:REVIEWS]->(m:Movie)
+                RETURN r, u.userId AS userId, m.movieId AS movieId
+                ORDER BY r.created_at DESC
+                SKIP $skip LIMIT $limit
+                """,
+                skip=skip, limit=limit,
+            )
+            return [_record_to_dict(r) for r in result]
+
+    def find_by_id(self, review_id: str) -> dict | None:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (r:Review {reviewId: $reviewId})
+                OPTIONAL MATCH (u:User)-[:WROTE]->(r)
+                OPTIONAL MATCH (r)-[:REVIEWS]->(m:Movie)
+                RETURN r, u.userId AS userId, m.movieId AS movieId
+                """,
+                reviewId=review_id,
+            )
+            record = result.single()
+            return _record_to_dict(record) if record else None
+
+    def find_by_movie(self, movie_id: int) -> list[dict]:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (r:Review)-[:REVIEWS]->(m:Movie {movieId: $movieId})
+                OPTIONAL MATCH (u:User)-[:WROTE]->(r)
+                RETURN r, u.userId AS userId, m.movieId AS movieId
+                ORDER BY r.created_at DESC
+                """,
+                movieId=movie_id,
+            )
+            return [_record_to_dict(r) for r in result]
+
+    def delete(self, review_id: str) -> bool:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (r:Review {reviewId: $reviewId})
+                DETACH DELETE r
+                RETURN count(r) AS deleted
+                """,
+                reviewId=review_id,
+            )
+            return result.single()["deleted"] > 0

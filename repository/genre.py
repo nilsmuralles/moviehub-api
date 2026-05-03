@@ -1,17 +1,10 @@
 from neo4j import Driver
-from models.user import UserCreate, UserUpdate
-import json
+from models.genre import GenreCreate, GenreUpdate
 
 def _record_to_dict(record) -> dict:
-    data = dict(record["u"])
-    if isinstance(data.get("genres"), str):
-        try:
-            data["genres"] = json.loads(data["genres"])
-        except (ValueError, TypeError):
-            data["genres"] = []
-    return data
+    return dict(record["g"])
 
-class UserRepository:
+class GenreRepository:
     def __init__(self, driver: Driver):
         self.driver = driver
 
@@ -19,9 +12,9 @@ class UserRepository:
         with self.driver.session() as session:
             result = session.run(
                 """
-                MATCH (u:User)
-                RETURN u
-                ORDER BY u.username
+                MATCH (g:Genre)
+                RETURN g
+                ORDER BY g.name
                 SKIP $skip LIMIT $limit
                 """,
                 skip=skip,
@@ -29,76 +22,76 @@ class UserRepository:
             )
             return [_record_to_dict(r) for r in result]
 
-    def find_by_id(self, user_id: str) -> dict | None:
+    def find_by_id(self, genre_id: str) -> dict | None:
         with self.driver.session() as session:
             result = session.run(
                 """
-                MATCH (u:User {userId: $userId})
-                RETURN u
+                MATCH (g:Genre {genreId: $genreId})
+                RETURN g
                 """,
-                userId=user_id,
+                genreId=genre_id,
             )
             record = result.single()
             return _record_to_dict(record) if record else None
 
-    def find_by_username(self, username: str) -> list[dict]:
+    def find_by_name(self, name: str) -> list[dict]:
         with self.driver.session() as session:
             result = session.run(
                 """
-                MATCH (u:User)
-                WHERE toLower(u.username) CONTAINS toLower($username)
-                RETURN u
-                ORDER BY u.username
+                MATCH (g:Genre)
+                WHERE toLower(g.name) CONTAINS toLower($name)
+                RETURN g
+                ORDER BY g.name
                 """,
-                username=username,
+                name=name,
             )
             return [_record_to_dict(r) for r in result]
 
-    def create(self, data: UserCreate) -> dict:
+    def create(self, data: GenreCreate) -> dict:
         with self.driver.session() as session:
             result = session.run(
                 """
-                CREATE (u:User {
-                    userId: $userId,
-                    username: $username,
-                    password: $password,
-                    is_premium: $is_premium,
-                    avatar_path: $avatar_path,
-                    join_date: date()
+                CREATE (g:Genre {
+                    genreId: $genreId,
+                    name: $name,
+                    movie_count: $movie_count,
+                    avg_rating: $avg_rating,
+                    popularity_score: $popularity_score,
+                    is_classic: $is_classic
                 })
-                RETURN u
+                RETURN g
                 """,
                 **data.model_dump(),
             )
             return _record_to_dict(result.single())
 
-    def update(self, user_id: str, data: UserUpdate) -> dict | None:
+    def update(self, genre_id: str, data: GenreUpdate) -> dict | None:
         fields = {k: v for k, v in data.model_dump().items() if v is not None}
         if not fields:
-            return self.find_by_id(user_id)
+            return self.find_by_id(genre_id)
 
-        set_clause = ", ".join(f"u.{k} = ${k}" for k in fields)
+        set_clause = ", ".join(f"g.{k} = ${k}" for k in fields)
         with self.driver.session() as session:
             result = session.run(
                 f"""
-                MATCH (u:User {{userId: $userId}})
+                MATCH (g:Genre {{genreId: $genreId}})
                 SET {set_clause}
-                RETURN u
+                RETURN g
                 """,
-                userId=user_id,
+                genreId=genre_id,
                 **fields,
             )
             record = result.single()
             return _record_to_dict(record) if record else None
 
-    def delete(self, user_id: str) -> bool:
+    def delete(self, genre_id: str) -> bool:
         with self.driver.session() as session:
             result = session.run(
                 """
-                MATCH (u:User {userId: $userId})
-                DETACH DELETE u
-                RETURN count(u) AS deleted
+                MATCH (g:Genre {genreId: $genreId})
+                DETACH DELETE g
+                RETURN count(g) AS deleted
                 """,
-                userId=user_id,
+                genreId=genre_id,
             )
             return result.single()["deleted"] > 0

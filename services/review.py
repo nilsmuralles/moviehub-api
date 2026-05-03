@@ -17,3 +17,18 @@ class ReviewService:
 
         record = self.repository.update(review_id, data)
         return Review(**record) if record else None
+    
+    def get_all(self, skip: int = 0, limit: int = 25) -> list[Review]:
+        records = self.repository.find_all(skip=skip, limit=limit)
+        return [Review(**r) for r in records]
+
+    def get_by_id(self, review_id: str) -> Review | None:
+        record = self.repository.find_by_id(review_id)
+        return Review(**record) if record else None
+
+    def get_by_movie(self, movie_id: int) -> list[Review]:
+        records = self.repository.find_by_movie(movie_id)
+        return [Review(**r) for r in records]
+
+    def delete(self, review_id: str) -> bool:
+        return self.repository.delete(review_id)
