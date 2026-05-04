@@ -22,3 +22,6 @@ class User(UserBase):
 
     class Config:
         from_attributes = True
+
+class GenreUpdate(BaseModel):
+    genres: list[str]
