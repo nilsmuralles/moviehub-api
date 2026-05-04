@@ -102,3 +102,100 @@ class UserRepository:
                 userId=user_id,
             )
             return result.single()["deleted"] > 0
+        
+    # Películas vistas
+    def add_watched(self, user_id: int, movie_id: int):
+        with self.driver.session() as session:
+            session.run(
+                """
+                MATCH (u:User {userId: $userId})
+                MATCH (m:Movie {movieId: $movieId})
+                MERGE (u)-[:WATCHED]->(m)
+                """,
+                userId=user_id,
+                movieId=movie_id
+            )
+
+    def remove_watched(self, user_id: int, movie_id: int):
+        with self.driver.session() as session:
+            session.run(
+                """
+                MATCH (u:User {userId: $userId})-[r:WATCHED]->(m:Movie {movieId: $movieId})
+                DELETE r
+                """,
+                userId=user_id,
+                movieId=movie_id
+            )
+
+    # Recomendaciones
+    def add_recommend(self, user_id: int, movie_id: int):
+        with self.driver.session() as session:
+            session.run(
+                """
+                MATCH (u:User {userId: $userId})
+                MATCH (m:Movie {movieId: $movieId})
+                MERGE (u)-[:RECOMMENDS]->(m)
+                """,
+                userId=user_id,
+                movieId=movie_id
+            )
+
+    def remove_recommend(self, user_id: int, movie_id: int):
+        with self.driver.session() as session:
+            session.run(
+                """
+                MATCH (u:User {userId: $userId})-[r:RECOMMENDS]->(m:Movie {movieId: $movieId})
+                DELETE r
+                """,
+                userId=user_id,
+                movieId=movie_id
+            )
+
+    # Seguir usuarios
+
+    def follow_user(self, user_id: int, target_id: int):
+        with self.driver.session() as session:
+            session.run(
+                """
+                MATCH (u:User {userId: $userId})
+                MATCH (t:User {userId: $targetId})
+                MERGE (u)-[:FOLLOWS]->(t)
+                """,
+                userId=user_id,
+                targetId=target_id
+            )
+
+    def unfollow_user(self, user_id: int, target_id: int):
+        with self.driver.session() as session:
+            session.run(
+                """
+                MATCH (u:User {userId: $userId})-[r:FOLLOWS]->(t:User {userId: $targetId})
+                DELETE r
+                """,
+                userId=user_id,
+                targetId=target_id
+            )
+
+    # Géneros de interés
+    def set_user_genres(self, user_id: int, genres: list[str]):
+        with self.driver.session() as session:
+            # eliminar relaciones existentes
+            session.run(
+                """
+                MATCH (u:User {userId: $userId})-[r:INTERESTED_IN]->(:Genre)
+                DELETE r
+                """,
+                userId=user_id
+            )
+
+            # crear nuevas
+            for genre in genres:
+                session.run(
+                    """
+                    MATCH (u:User {userId: $userId})
+                    MERGE (g:Genre {name: $genre})
+                    MERGE (u)-[:INTERESTED_IN]->(g)
+                    """,
+                    userId=user_id,
+                    genre=genre
+                )
