@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from database import get_driver, close_driver
 from routers import movie, person, user, genre, company, review, auth, analytics, recommendation
+from fastapi.middleware.cors import CORSMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -9,7 +10,16 @@ async def lifespan(app: FastAPI):
     yield
     close_driver()
 
+
 app = FastAPI(title="Movies API", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # CRUD
 app.include_router(movie.router)
