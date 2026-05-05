@@ -144,3 +144,18 @@ def update_watch_progress(
     if not updated:
         raise HTTPException(status_code=404, detail="WATCHED relationship not found")
     return {"userId": user_id, "movieId": movie_id, "progress_percentage": progress}
+
+@router.patch("/{user_id}/toggle-premium", response_model=User)
+def toggle_premium(user_id: str, service: UserService = Depends(get_service)):
+    user = service.toggle_premium(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+@router.patch("/{user_id}/verify-reviews", status_code=200)
+def verify_premium_reviews(user_id: str, service: UserService = Depends(get_service)):
+    updated = service.verify_premium_reviews(user_id)
+    if updated == 0:
+        raise HTTPException(status_code=400, detail="User not found or not premium")
+    return {"userId": user_id, "reviews_verified": updated}

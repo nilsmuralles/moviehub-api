@@ -213,3 +213,28 @@ class UserRepository:
                 progress=progress,
             )
             return result.single()["updated"] > 0
+
+    def toggle_premium(self, user_id: str) -> dict | None:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (u:User {userId: $userId})
+                SET u.is_premium = NOT coalesce(u.is_premium, false)
+                RETURN u
+                """,
+                userId=user_id,
+            )
+            record = result.single()
+            return _record_to_dict(record) if record else None
+
+    def verify_premium_reviews(self, user_id: str) -> int:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (u:User {userId: $userId, is_premium: true})-[r:WROTE]->(:Review)
+                SET r.is_verified = true
+                RETURN count(r) AS updated
+                """,
+                userId=user_id,
+            )
+            return result.single()["updated"]

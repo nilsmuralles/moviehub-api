@@ -63,3 +63,10 @@ class UserService:
 
     def update_watch_progress(self, user_id: str, movie_id: int, progress: float) -> bool:
         return self.repository.update_watch_progress(user_id, movie_id, progress)
+
+    def toggle_premium(self, user_id: str) -> User | None:
+        record = self.repository.toggle_premium(user_id)
+        return User(**record) if record else None
+
+    def verify_premium_reviews(self, user_id: str) -> int:
+        return self.repository.verify_premium_reviews(user_id)
