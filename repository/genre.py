@@ -95,3 +95,15 @@ class GenreRepository:
                 genreId=genre_id,
             )
             return result.single()["deleted"] > 0
+        
+
+    def update_genre_count(self, genre_id: str):
+        with self.driver.session() as session:
+            session.run(
+                """
+                MATCH (g:Genre {genreId: $genreId})<-[:HAS_GENRE]-(m:Movie)
+                WITH g, count(m) AS total
+                SET g.movie_count = total
+                """,
+                genreId=genre_id
+            )

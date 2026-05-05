@@ -147,3 +147,15 @@ class MovieRepository:
                 movieId=movie_id,
                 genre_ids=genre_ids,
             )
+
+    def update_movie_rating(self, movie_id: int):
+        with self.driver.session() as session:
+            session.run(
+                """
+                MATCH (m:Movie {movieId: $movieId})<-[:REVIEWS]-(r:Review)
+                WITH m, avg(r.rating) AS avgRating, count(r) AS total
+                SET m.vote_average = avgRating,
+                    m.vote_count = total
+                """,
+                movieId=movie_id
+            )
