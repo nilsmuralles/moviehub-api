@@ -30,3 +30,6 @@ class UserService:
 
     def delete(self, user_id: str) -> bool:
         return self.repository.delete(user_id)
+
+    def toggle_watched(self, user_id: str, movie_id: int):
+        return self.repository.toggle_watched(user_id, movie_id)

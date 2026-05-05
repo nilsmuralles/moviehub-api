@@ -103,3 +103,35 @@ class UserRepository:
                 userId=user_id,
             )
             return result.single()["deleted"] > 0
+
+    def toggle_watched(self, user_id: str, movie_id: int) -> dict:
+        with self.driver.session() as session:
+            existing = session.run(
+                """
+                MATCH (u:User {userId: $userId})-[w:WATCHED]->(m:Movie {movieId: $movieId})
+                RETURN w
+                """,
+                userId=user_id,
+                movieId=movie_id,
+            ).single()
+
+            if existing:
+                session.run(
+                    """
+                    MATCH (u:User {userId: $userId})-[w:WATCHED]->(m:Movie {movieId: $movieId})
+                    DELETE w
+                    """,
+                    userId=user_id,
+                    movieId=movie_id,
+                )
+                return {"status": "removed"}
+            else:
+                session.run(
+                    """
+                    MATCH (u:User {userId: $userId}), (m:Movie {movieId: $movieId})
+                    CREATE (u)-[:WATCHED {progress_percentage: 100}]->(m)
+                    """,
+                    userId=user_id,
+                    movieId=movie_id,
+                )
+                return {"status": "added"}

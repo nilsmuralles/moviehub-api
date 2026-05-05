@@ -63,3 +63,7 @@ def delete_user(user_id: str, service: UserService = Depends(get_service)):
     deleted = service.delete(user_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="User not found")
+
+@router.post("/{user_id}/watched/{movie_id}/toggle")
+def toggle_watched(user_id: str, movie_id: int, service: UserService = Depends(get_service)):
+    return service.toggle_watched(user_id, movie_id)
