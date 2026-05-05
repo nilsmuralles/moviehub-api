@@ -60,3 +60,6 @@ class UserService:
     # Géneros de interés
     def set_genres(self, user_id: int, genres: list[str]):
         self.repository.set_user_genres(user_id, genres)
+
+    def update_watch_progress(self, user_id: str, movie_id: int, progress: float) -> bool:
+        return self.repository.update_watch_progress(user_id, movie_id, progress)
