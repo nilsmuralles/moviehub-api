@@ -51,3 +51,15 @@ class UserService:
 
     def clear_watch_history(self, user_id: str) -> int:
         return self.repository.clear_watch_history(user_id)
+
+    def toggle_premium(self, user_id: str) -> User | None:
+        record = self.repository.toggle_premium(user_id)
+        return User(**record) if record else None
+
+    def toggle_verified(self, user_id: str) -> User | None:
+        record = self.repository.toggle_verified(user_id)
+        return User(**record) if record else None
+
+    def toggle_public(self, user_id: str) -> User | None:
+        record = self.repository.toggle_public(user_id)
+        return User(**record) if record else None

@@ -218,3 +218,42 @@ class UserRepository:
             )
             record = result.single()
             return record["total"] if record else 0
+
+    def toggle_premium(self, user_id: str) -> dict | None:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (u:User {userId: $userId})
+                SET u.is_premium = NOT coalesce(u.is_premium, false)
+                RETURN u
+                """,
+                userId=user_id,
+            )
+            record = result.single()
+            return _record_to_dict(record) if record else None
+
+    def toggle_verified(self, user_id: str) -> dict | None:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (u:User {userId: $userId})
+                SET u.is_verified = NOT coalesce(u.is_verified, false)
+                RETURN u
+                """,
+                userId=user_id,
+            )
+            record = result.single()
+            return _record_to_dict(record) if record else None
+
+    def toggle_public(self, user_id: str) -> dict | None:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (u:User {userId: $userId})
+                SET u.is_public = NOT coalesce(u.is_public, true)
+                RETURN u
+                """,
+                userId=user_id,
+            )
+            record = result.single()
+            return _record_to_dict(record) if record else None

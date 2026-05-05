@@ -101,3 +101,24 @@ def get_user_reviews(user_id: str, service: UserService = Depends(get_service)):
 def clear_watch_history(user_id: str, service: UserService = Depends(get_service)):
     deleted = service.clear_watch_history(user_id)
     return {"userId": user_id, "relationships_deleted": deleted}
+
+@router.patch("/{user_id}/toggle-premium", response_model=User)
+def toggle_premium(user_id: str, service: UserService = Depends(get_service)):
+    user = service.toggle_premium(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+@router.patch("/{user_id}/toggle-verified", response_model=User)
+def toggle_verified(user_id: str, service: UserService = Depends(get_service)):
+    user = service.toggle_verified(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+@router.patch("/{user_id}/toggle-public", response_model=User)
+def toggle_public(user_id: str, service: UserService = Depends(get_service)):
+    user = service.toggle_public(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
