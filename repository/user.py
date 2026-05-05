@@ -204,3 +204,17 @@ class UserRepository:
                      "movieId": rec["r"].get("movieId"), "rating": rec["r"].get("rating"),
                      "content": rec["r"].get("content"), "created_at": rec["r"].get("created_at"),
                      "updated_at": rec["r"].get("updated_at"), "url": rec["r"].get("url")} for rec in result]
+
+    def clear_watch_history(self, user_id: str) -> int:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (u:User {userId: $userId})-[r:WATCHED]->(:Movie)
+                WITH count(r) AS total, collect(r) AS rels
+                FOREACH (r IN rels | DELETE r)
+                RETURN total
+                """,
+                userId=user_id,
+            )
+            record = result.single()
+            return record["total"] if record else 0

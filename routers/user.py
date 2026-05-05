@@ -96,3 +96,8 @@ def get_recommended_movies(user_id: str, service: UserService = Depends(get_serv
 @router.get("/{user_id}/reviews")
 def get_user_reviews(user_id: str, service: UserService = Depends(get_service)):
     return service.get_user_reviews(user_id)
+
+@router.delete("/{user_id}/watched", status_code=200)
+def clear_watch_history(user_id: str, service: UserService = Depends(get_service)):
+    deleted = service.clear_watch_history(user_id)
+    return {"userId": user_id, "relationships_deleted": deleted}

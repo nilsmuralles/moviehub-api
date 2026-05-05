@@ -48,3 +48,6 @@ class UserService:
 
     def get_user_reviews(self, user_id: str) -> list[dict]:
         return self.repository.find_user_reviews(user_id)
+
+    def clear_watch_history(self, user_id: str) -> int:
+        return self.repository.clear_watch_history(user_id)
