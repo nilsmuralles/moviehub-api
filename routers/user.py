@@ -64,23 +64,10 @@ def delete_user(user_id: int, service: UserService = Depends(get_service)):
         raise HTTPException(status_code=404, detail="User not found")
     
 # Películas vistas
-@router.post("/{user_id}/watched/{movie_id}")
-def add_watched(
-    user_id: int,
-    movie_id: int,
-    service: UserService = Depends(get_service),
-):
-    service.add_watched(user_id, movie_id)
-    return {"message": "Movie marked as watched"}
-
-@router.delete("/{user_id}/watched/{movie_id}")
-def remove_watched(
-    user_id: int,
-    movie_id: int,
-    service: UserService = Depends(get_service),
-):
-    service.remove_watched(user_id, movie_id)
-    return {"message": "Movie removed from watched"}
+@router.post("/{user_id}/watched/{movie_id}/toggle")
+@router.post("/{user_id}/watched/{movie_id}/toggle/")
+def toggle_watched(user_id: str, movie_id: int, service: UserService = Depends(get_service)):
+    return service.toggle_watched(user_id, movie_id)
 
 # Recomendaciones
 @router.post("/{user_id}/recommend/{movie_id}")
