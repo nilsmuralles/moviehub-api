@@ -14,26 +14,39 @@ class MovieRepository:
             result = session.run(
                 """
                 MATCH (m:Movie)
-                RETURN m
+                OPTIONAL MATCH (m)-[:HAS_GENRE]->(g:Genre)
+                WITH m, collect(g.name) AS genres
+                RETURN m, genres
                 ORDER BY m.title
                 SKIP $skip LIMIT $limit
                 """,
                 skip=skip,
                 limit=limit,
             )
-            return [_record_to_dict(r) for r in result]
+            records = []
+            for r in result:
+                movie = dict(r["m"])
+                movie["genres"] = r["genres"] if r["genres"] else []
+                records.append(movie)
+            return records
 
     def find_by_id(self, movie_id: int) -> dict | None:
         with self.driver.session() as session:
             result = session.run(
                 """
                 MATCH (m:Movie {movieId: $movieId})
-                RETURN m
+                OPTIONAL MATCH (m)-[:HAS_GENRE]->(g:Genre)
+                WITH m, collect(g.name) AS genres
+                RETURN m, genres
                 """,
                 movieId=movie_id,
             )
             record = result.single()
-            return _record_to_dict(record) if record else None
+            if not record:
+                return None
+            movie = dict(record["m"])
+            movie["genres"] = record["genres"] if record["genres"] else []
+            return movie
 
     def find_by_title(self, title: str) -> list[dict]:
         with self.driver.session() as session:
@@ -105,3 +118,32 @@ class MovieRepository:
                 movieId=movie_id,
             )
             return result.single()["deleted"] > 0
+        
+    def find_by_genre(self, genre: str, skip: int, limit: int) -> list[dict]:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (m:Movie)-[:HAS_GENRE]->(g:Genre)
+                WHERE toLower(g.name) = toLower($genre)
+                RETURN m
+                ORDER BY m.vote_average DESC
+                SKIP $skip LIMIT $limit
+                """,
+                genre=genre,
+                skip=skip,
+                limit=limit,
+            )
+            return [_record_to_dict(r) for r in result]
+        
+    def add_genres(self, movie_id: int, genre_ids: list[str]) -> None:
+        with self.driver.session() as session:
+            session.run(
+                """
+                MATCH (m:Movie {movieId: $movieId})
+                UNWIND $genre_ids AS genreId
+                MATCH (g:Genre {genreId: genreId})
+                MERGE (m)-[:HAS_GENRE]->(g)
+                """,
+                movieId=movie_id,
+                genre_ids=genre_ids,
+            )

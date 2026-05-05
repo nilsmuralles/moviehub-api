@@ -30,3 +30,10 @@ class MovieService:
 
     def delete(self, movie_id: int) -> bool:
         return self.repository.delete(movie_id)
+    
+    def get_by_genre(self, genre: str, skip: int = 0, limit: int = 25) -> list[Movie]:
+        records = self.repository.find_by_genre(genre, skip=skip, limit=limit)
+        return [Movie(**r) for r in records]
+
+    def add_genres(self, movie_id: int, genre_ids: list[str]) -> None:
+        self.repository.add_genres(movie_id, genre_ids)

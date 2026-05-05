@@ -26,6 +26,23 @@ def search_movies(
 ):
     return service.search_by_title(title)
 
+@router.get("/by-genre", response_model=list[Movie])
+def get_movies_by_genre(
+    genre: str = Query(..., min_length=1),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(25, ge=1, le=100),
+    service: MovieService = Depends(get_service),
+):
+    return service.get_by_genre(genre=genre, skip=skip, limit=limit)
+
+@router.post("/{movie_id}/genres", status_code=204)
+def add_movie_genres(
+    movie_id: int,
+    genre_ids: list[str],
+    service: MovieService = Depends(get_service),
+):
+    service.add_genres(movie_id, genre_ids)
+
 @router.get("/{movie_id}", response_model=Movie)
 def get_movie(movie_id: int, service: MovieService = Depends(get_service)):
     movie = service.get_by_id(movie_id)
