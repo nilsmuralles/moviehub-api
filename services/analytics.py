@@ -27,3 +27,6 @@ class AnalyticsService:
 
     def get_top_movies_by_rating(self) -> list[dict]:
         return self.repository.get_top_movies_by_rating()
+
+    def get_movies_by_genre_name(self, genre: str) -> list[dict]:
+        return self.repository.get_movies_by_genre_name(genre)

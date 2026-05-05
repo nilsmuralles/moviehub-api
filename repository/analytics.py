@@ -110,3 +110,16 @@ class AnalyticsRepository:
                 """
             )
             return [dict(r) for r in result]
+
+    def get_movies_by_genre_name(self, genre: str) -> list[dict]:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (m:Movie)-[:HAS_GENRE]->(g:Genre)
+                WHERE toLower(g.name) = toLower($genre)
+                RETURN m
+                ORDER BY m.vote_average DESC
+                """,
+                genre=genre,
+            )
+            return [dict(r["m"]) for r in result]

@@ -45,3 +45,10 @@ def user_genres(service: AnalyticsService = Depends(get_service)):
 @router.get("/companies/movie-count")
 def movies_per_company(service: AnalyticsService = Depends(get_service)):
     return service.get_movies_per_company()
+
+@router.get("/movies/genre/{genre}")
+def movies_by_genre_name(genre: str, service: AnalyticsService = Depends(get_service)):
+    results = service.get_movies_by_genre_name(genre)
+    if not results:
+        raise HTTPException(status_code=404, detail=f"No movies found for genre '{genre}'")
+    return results
