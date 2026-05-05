@@ -70,3 +70,7 @@ class UserService:
 
     def verify_premium_reviews(self, user_id: str) -> int:
         return self.repository.verify_premium_reviews(user_id)
+    
+    def toggle_verified(self, user_id: int) -> User | None:
+        record = self.repository.toggle_verified(user_id)
+        return User(**record) if record else None

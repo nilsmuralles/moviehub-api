@@ -238,3 +238,26 @@ class UserRepository:
                 userId=user_id,
             )
             return result.single()["updated"]
+        
+    def toggle_verified(self, user_id: int) -> dict | None:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (u:User {userId: $userId})
+                WITH u,
+                    CASE 
+                        WHEN exists(u.verified) THEN false
+                        ELSE true
+                    END AS shouldVerify
+                FOREACH (_ IN CASE WHEN shouldVerify THEN [1] ELSE [] END |
+                    SET u.verified = true
+                )
+                FOREACH (_ IN CASE WHEN NOT shouldVerify THEN [1] ELSE [] END |
+                    REMOVE u.verified
+                )
+                RETURN u
+                """,
+                userId=user_id
+            )
+            record = result.single()
+            return _record_to_dict(record) if record else None

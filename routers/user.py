@@ -159,3 +159,10 @@ def verify_premium_reviews(user_id: str, service: UserService = Depends(get_serv
     if updated == 0:
         raise HTTPException(status_code=400, detail="User not found or not premium")
     return {"userId": user_id, "reviews_verified": updated}
+
+@router.patch("/{user_id}/verify")
+def toggle_verified(user_id: int, service: UserService = Depends(get_service)):
+    user = service.toggle_verified(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
