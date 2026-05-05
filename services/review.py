@@ -7,14 +7,10 @@ class ReviewService:
         self.repository = repository
 
     def create(self, data: ReviewCreate) -> Review:
-        data.created_at = date.today()
-
         record = self.repository.create(data)
         return Review(**record)
 
     def update(self, review_id: int, data: ReviewUpdate) -> Review | None:
-        data.updated_at = date.today()
-
         record = self.repository.update(review_id, data)
         return Review(**record) if record else None
     

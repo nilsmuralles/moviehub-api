@@ -18,18 +18,16 @@ class ReviewRepository:
                 """
                 MATCH (u:User {userId: $userId})
                 MATCH (m:Movie {movieId: $movieId})
-
                 CREATE (r:Review {
                     reviewId: $reviewId,
                     rating: $rating,
                     content: $content,
                     url: $url,
-                    created_at: $created_at
+                    created_at: toString(datetime()),
+                    updated_at: toString(datetime())
                 })
-
                 CREATE (u)-[:WROTE]->(r)
-                CREATE (r)-[:REVIEWS]->(m)
-
+                CREATE (m)-[:HAS_REVIEW]->(r)
                 RETURN r, u.userId AS userId, m.movieId AS movieId
                 """,
                 **data.model_dump(),
@@ -61,7 +59,7 @@ class ReviewRepository:
                 """
                 MATCH (r:Review)
                 OPTIONAL MATCH (u:User)-[:WROTE]->(r)
-                OPTIONAL MATCH (r)-[:REVIEWS]->(m:Movie)
+                OPTIONAL MATCH (r)-[:HAS_REVIEW]->(m:Movie)
                 RETURN r, u.userId AS userId, m.movieId AS movieId
                 ORDER BY r.created_at DESC
                 SKIP $skip LIMIT $limit
@@ -76,7 +74,7 @@ class ReviewRepository:
                 """
                 MATCH (r:Review {reviewId: $reviewId})
                 OPTIONAL MATCH (u:User)-[:WROTE]->(r)
-                OPTIONAL MATCH (r)-[:REVIEWS]->(m:Movie)
+                OPTIONAL MATCH (r)-[:HAS_REVIEW]->(m:Movie)
                 RETURN r, u.userId AS userId, m.movieId AS movieId
                 """,
                 reviewId=review_id,
@@ -88,7 +86,7 @@ class ReviewRepository:
         with self.driver.session() as session:
             result = session.run(
                 """
-                MATCH (r:Review)-[:REVIEWS]->(m:Movie {movieId: $movieId})
+                MATCH (r:Review)-[:HAS_REVIEW]->(m:Movie {movieId: $movieId})
                 OPTIONAL MATCH (u:User)-[:WROTE]->(r)
                 RETURN r, u.userId AS userId, m.movieId AS movieId
                 ORDER BY r.created_at DESC

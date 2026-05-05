@@ -63,3 +63,6 @@ class UserService:
     def toggle_public(self, user_id: str) -> User | None:
         record = self.repository.toggle_public(user_id)
         return User(**record) if record else None
+
+    def verify_premium_reviews(self, user_id: str) -> int:
+        return self.repository.verify_premium_reviews(user_id)
