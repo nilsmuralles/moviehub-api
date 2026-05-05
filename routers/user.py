@@ -70,7 +70,8 @@ def toggle_watched(user_id: str, movie_id: int, service: UserService = Depends(g
 
 @router.get("/{user_id}/watched/{movie_id}")
 def is_watching(user_id: str, movie_id: int, service: UserService = Depends(get_service)):
-    return {"watched": service.is_watching(user_id, movie_id)}
+    result = service.is_watching(user_id, movie_id)
+    return result
 
 @router.patch("/{user_id}/watched/{movie_id}/progress")
 def update_watch_progress(

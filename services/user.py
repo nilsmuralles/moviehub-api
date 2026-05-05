@@ -34,7 +34,7 @@ class UserService:
     def toggle_watched(self, user_id: str, movie_id: int):
         return self.repository.toggle_watched(user_id, movie_id)
 
-    def is_watching(self, user_id: str, movie_id: int) -> bool:
+    def is_watching(self, user_id: str, movie_id: int) -> dict:
         return self.repository.is_watching(user_id, movie_id)
 
     def update_watch_progress(self, user_id: str, movie_id: int, progress: float) -> bool:
