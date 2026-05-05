@@ -135,3 +135,29 @@ class UserRepository:
                     movieId=movie_id,
                 )
                 return {"status": "added"}
+
+    def is_watching(self, user_id: str, movie_id: int) -> bool:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (u:User {userId: $userId})-[:WATCHED]->(m:Movie {movieId: $movieId})
+                RETURN count(*) > 0 AS watched
+                """,
+                userId=user_id,
+                movieId=movie_id,
+            )
+            return result.single()["watched"]
+
+    def update_watch_progress(self, user_id: str, movie_id: int, progress: float) -> bool:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (u:User {userId: $userId})-[r:WATCHED]->(m:Movie {movieId: $movieId})
+                SET r.progress_percentage = $progress
+                RETURN count(r) AS updated
+                """,
+                userId=user_id,
+                movieId=movie_id,
+                progress=progress,
+            )
+            return result.single()["updated"] > 0

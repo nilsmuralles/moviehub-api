@@ -67,3 +67,19 @@ def delete_user(user_id: str, service: UserService = Depends(get_service)):
 @router.post("/{user_id}/watched/{movie_id}/toggle")
 def toggle_watched(user_id: str, movie_id: int, service: UserService = Depends(get_service)):
     return service.toggle_watched(user_id, movie_id)
+
+@router.get("/{user_id}/watched/{movie_id}")
+def is_watching(user_id: str, movie_id: int, service: UserService = Depends(get_service)):
+    return {"watched": service.is_watching(user_id, movie_id)}
+
+@router.patch("/{user_id}/watched/{movie_id}/progress")
+def update_watch_progress(
+    user_id: str,
+    movie_id: int,
+    progress: float = Query(..., ge=0.0, le=100.0, description="Percentage watched so far"),
+    service: UserService = Depends(get_service),
+):
+    updated = service.update_watch_progress(user_id, movie_id, progress)
+    if not updated:
+        raise HTTPException(status_code=404, detail="WATCHED relationship not found")
+    return {"userId": user_id, "movieId": movie_id, "progress_percentage": progress}
