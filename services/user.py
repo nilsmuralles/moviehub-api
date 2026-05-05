@@ -66,3 +66,9 @@ class UserService:
 
     def verify_premium_reviews(self, user_id: str) -> int:
         return self.repository.verify_premium_reviews(user_id)
+
+    def toggle_recommends(self, user_id: str, movie_id: int) -> dict:
+        return self.repository.toggle_recommends(user_id, movie_id)
+
+    def is_recommending(self, user_id: str, movie_id: int) -> bool:
+        return self.repository.is_recommending(user_id, movie_id)

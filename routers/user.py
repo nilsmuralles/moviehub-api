@@ -129,3 +129,11 @@ def verify_premium_reviews(user_id: str, service: UserService = Depends(get_serv
     if updated == 0:
         raise HTTPException(status_code=400, detail="User not found or not premium")
     return {"userId": user_id, "reviews_verified": updated}
+
+@router.post("/{user_id}/recommends/{movie_id}/toggle")
+def toggle_recommends(user_id: str, movie_id: int, service: UserService = Depends(get_service)):
+    return service.toggle_recommends(user_id, movie_id)
+
+@router.get("/{user_id}/recommends/{movie_id}")
+def is_recommending(user_id: str, movie_id: int, service: UserService = Depends(get_service)):
+    return {"recommended": service.is_recommending(user_id, movie_id)}

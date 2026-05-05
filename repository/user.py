@@ -269,3 +269,47 @@ class UserRepository:
                 userId=user_id,
             )
             return result.single()["updated"]
+
+    def toggle_recommends(self, user_id: str, movie_id: int) -> dict:
+        with self.driver.session() as session:
+            existing = session.run(
+                """
+                MATCH (u:User {userId: $userId})-[r:RECOMMENDS]->(m:Movie {movieId: $movieId})
+                RETURN r
+                """,
+                userId=user_id,
+                movieId=movie_id,
+            ).single()
+
+            if existing:
+                session.run(
+                    """
+                    MATCH (u:User {userId: $userId})-[r:RECOMMENDS]->(m:Movie {movieId: $movieId})
+                    DELETE r
+                    """,
+                    userId=user_id,
+                    movieId=movie_id,
+                )
+                return {"status": "removed"}
+            else:
+                session.run(
+                    """
+                    MATCH (u:User {userId: $userId}), (m:Movie {movieId: $movieId})
+                    CREATE (u)-[:RECOMMENDS {rating: 0, recommended_at: toString(datetime()), reason: ""}]->(m)
+                    """,
+                    userId=user_id,
+                    movieId=movie_id,
+                )
+                return {"status": "added"}
+
+    def is_recommending(self, user_id: str, movie_id: int) -> bool:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (u:User {userId: $userId})-[:RECOMMENDS]->(m:Movie {movieId: $movieId})
+                RETURN count(*) > 0 AS recommended
+                """,
+                userId=user_id,
+                movieId=movie_id,
+            )
+            return result.single()["recommended"]
