@@ -119,3 +119,35 @@ class ReviewRepository:
                 """,
                 reviewIds=review_ids
             )
+
+    def unhide_reviews(self, review_ids: list[int]):
+        with self.driver.session() as session:
+            session.run(
+                """
+                MATCH (r:Review)
+                WHERE r.reviewId IN $reviewIds
+                REMOVE r.hidden
+                """,
+                reviewIds=review_ids
+            )
+
+    def delete_review(self, review_id: int):
+        with self.driver.session() as session:
+            session.run(
+                """
+                MATCH (r:Review {reviewId: $reviewId})
+                DETACH DELETE r
+                """,
+                reviewId=review_id
+            )
+
+    def delete_reviews(self, review_ids: list[int]):
+        with self.driver.session() as session:
+            session.run(
+                """
+                MATCH (r:Review)
+                WHERE r.reviewId IN $reviewIds
+                DETACH DELETE r
+                """,
+                reviewIds=review_ids
+            )
