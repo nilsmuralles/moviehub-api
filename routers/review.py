@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from database import get_driver
-from models.review import Review, ReviewCreate, ReviewUpdate
+from models.review import Review, ReviewCreate, ReviewUpdate, ReviewBulkAction
 from repository.review import ReviewRepository
 from services.review import ReviewService
 
@@ -53,3 +53,8 @@ def delete_review(review_id: str, service: ReviewService = Depends(get_service))
     deleted = service.delete(review_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Review not found")
+
+@router.put("/reviews/hide")
+def hide_reviews(data: ReviewBulkAction, service: ReviewService = Depends(get_service)):
+    service.hide_reviews(data.reviewIds)
+    return {"message": "Reviews hidden"}

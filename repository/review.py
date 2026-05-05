@@ -108,3 +108,14 @@ class ReviewRepository:
                 reviewId=review_id,
             )
             return result.single()["deleted"] > 0
+        
+    def hide_reviews(self, review_ids: list[int]):
+        with self.driver.session() as session:
+            session.run(
+                """
+                MATCH (r:Review)
+                WHERE r.reviewId IN $reviewIds
+                SET r.hidden = true
+                """,
+                reviewIds=review_ids
+            )

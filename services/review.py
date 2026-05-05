@@ -32,3 +32,6 @@ class ReviewService:
 
     def delete(self, review_id: str) -> bool:
         return self.repository.delete(review_id)
+    
+    def hide_reviews(self, review_ids: list[int]):
+        self.repository.hide_reviews(review_ids)

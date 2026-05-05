@@ -17,6 +17,9 @@ class ReviewUpdate(BaseModel):
     url: Optional[str] = None
     updated_at: Optional[str] = None
 
+class ReviewBulkAction(BaseModel):
+    reviewIds: list[int]
+
 class Review(ReviewBase):
     reviewId: str
     userId: Optional[str] = None
