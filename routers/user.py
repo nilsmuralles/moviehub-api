@@ -69,47 +69,6 @@ def delete_user(user_id: int, service: UserService = Depends(get_service)):
 def toggle_watched(user_id: str, movie_id: int, service: UserService = Depends(get_service)):
     return service.toggle_watched(user_id, movie_id)
 
-# Recomendaciones
-@router.post("/{user_id}/recommend/{movie_id}")
-def add_recommend(
-    user_id: int,
-    movie_id: int,
-    service: UserService = Depends(get_service),
-):
-    service.add_recommend(user_id, movie_id)
-    return {"message": "Movie recommended"}
-
-@router.delete("/{user_id}/recommend/{movie_id}")
-def remove_recommend(
-    user_id: int,
-    movie_id: int,
-    service: UserService = Depends(get_service),
-):
-    service.remove_recommend(user_id, movie_id)
-    return {"message": "Recommendation removed"}
-
-# Usuarios seguidos
-@router.post("/{user_id}/follow/{target_id}")
-def follow_user(
-    user_id: int,
-    target_id: int,
-    service: UserService = Depends(get_service),
-):
-    try:
-        service.follow_user(user_id, target_id)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    return {"message": "Now following user"}
-
-@router.delete("/{user_id}/follow/{target_id}")
-def unfollow_user(
-    user_id: int,
-    target_id: int,
-    service: UserService = Depends(get_service),
-):
-    service.unfollow_user(user_id, target_id)
-    return {"message": "Unfollowed user"}
-
 # Géneros
 @router.put("/{user_id}/genres")
 def update_genres(
@@ -138,7 +97,6 @@ def toggle_premium(user_id: str, service: UserService = Depends(get_service)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
-
 
 @router.patch("/{user_id}/verify-reviews", status_code=200)
 def verify_premium_reviews(user_id: str, service: UserService = Depends(get_service)):

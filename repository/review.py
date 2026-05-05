@@ -151,3 +151,16 @@ class ReviewRepository:
                 """,
                 reviewIds=review_ids
             )
+
+    def find_by_movie(self, movie_id: int) -> list[dict]:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (r:Review {movieId: $movieId})
+                OPTIONAL MATCH (u:User)-[:WROTE]->(r)
+                RETURN r, u.userId AS userId, r.movieId AS movieId
+                ORDER BY r.created_at DESC
+                """,
+                movieId=movie_id,
+            )
+            return [_record_to_dict(rec) for rec in result]

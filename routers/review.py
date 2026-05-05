@@ -63,3 +63,10 @@ def delete_reviews(data: ReviewBulkAction, service: ReviewService = Depends(get_
 def hide_reviews(data: ReviewBulkAction, service: ReviewService = Depends(get_service)):
     service.hide_reviews(data.reviewIds)
     return {"message": "Reviews hidden"}
+
+@router.get("/movie/{movie_id}", response_model=list[Review])
+def get_reviews_by_movie(movie_id: int, service: ReviewService = Depends(get_service)):
+    reviews = service.get_by_movie(movie_id)
+    if not reviews:
+        raise HTTPException(status_code=404, detail="No reviews found for this movie")
+    return reviews

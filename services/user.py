@@ -32,31 +32,6 @@ class UserService:
     def delete(self, user_id: int) -> bool:
         return self.repository.delete(user_id)
     
-# ----- RELACIONES -----
-
-    # Películas vistas
-    def add_watched(self, user_id: int, movie_id: int):
-        self.repository.add_watched(user_id, movie_id)
-
-    def remove_watched(self, user_id: int, movie_id: int):
-        self.repository.remove_watched(user_id, movie_id)
-
-    # Recomendaciones
-    def add_recommend(self, user_id: int, movie_id: int):
-        self.repository.add_recommend(user_id, movie_id)
-
-    def remove_recommend(self, user_id: int, movie_id: int):
-        self.repository.remove_recommend(user_id, movie_id)
-
-    # Seguir usuarios 
-    def follow_user(self, user_id: int, target_id: int):
-        if user_id == target_id:
-            raise ValueError("User cannot follow themselves")
-        self.repository.follow_user(user_id, target_id)
-
-    def unfollow_user(self, user_id: int, target_id: int):
-        self.repository.unfollow_user(user_id, target_id)
-
     # Géneros de interés
     def set_genres(self, user_id: int, genres: list[str]):
         self.repository.set_user_genres(user_id, genres)

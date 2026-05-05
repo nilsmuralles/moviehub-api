@@ -35,3 +35,7 @@ class ReviewService:
     
     def hide_reviews(self, review_ids: list[int]):
         self.repository.hide_reviews(review_ids)
+
+    def get_by_movie(self, movie_id: int) -> list[Review]:
+        records = self.repository.find_by_movie(movie_id)
+        return [Review(**r) for r in records]
