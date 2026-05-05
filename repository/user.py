@@ -165,3 +165,42 @@ class UserRepository:
                 progress=progress,
             )
             return result.single()["updated"] > 0
+
+    def find_watched_movies(self, user_id: str) -> list[dict]:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (u:User {userId: $userId})-[w:WATCHED]->(m:Movie)
+                RETURN m, w.progress_percentage AS progress_percentage
+                ORDER BY m.title
+                """,
+                userId=user_id,
+            )
+            return [{**dict(r["m"]), "progress_percentage": r["progress_percentage"]} for r in result]
+
+    def find_recommended_movies(self, user_id: str) -> list[dict]:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (u:User {userId: $userId})-[rec:RECOMMENDS]->(m:Movie)
+                RETURN m, rec.rating AS rec_rating, rec.reason AS reason
+                ORDER BY rec.recommended_at DESC
+                """,
+                userId=user_id,
+            )
+            return [{**dict(r["m"]), "rec_rating": r["rec_rating"], "reason": r["reason"]} for r in result]
+
+    def find_user_reviews(self, user_id: str) -> list[dict]:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (u:User {userId: $userId})-[:WROTE]->(r:Review)
+                RETURN r, u.userId AS userId, r.movieId AS movieId
+                ORDER BY r.created_at DESC
+                """,
+                userId=user_id,
+            )
+            return [{"reviewId": rec["r"]["reviewId"], "userId": user_id,
+                     "movieId": rec["r"].get("movieId"), "rating": rec["r"].get("rating"),
+                     "content": rec["r"].get("content"), "created_at": rec["r"].get("created_at"),
+                     "updated_at": rec["r"].get("updated_at"), "url": rec["r"].get("url")} for rec in result]

@@ -40,4 +40,11 @@ class UserService:
     def update_watch_progress(self, user_id: str, movie_id: int, progress: float) -> bool:
         return self.repository.update_watch_progress(user_id, movie_id, progress)
 
+    def get_watched_movies(self, user_id: str) -> list[dict]:
+        return self.repository.find_watched_movies(user_id)
 
+    def get_recommended_movies(self, user_id: str) -> list[dict]:
+        return self.repository.find_recommended_movies(user_id)
+
+    def get_user_reviews(self, user_id: str) -> list[dict]:
+        return self.repository.find_user_reviews(user_id)

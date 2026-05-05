@@ -84,3 +84,15 @@ def update_watch_progress(
     if not updated:
         raise HTTPException(status_code=404, detail="WATCHED relationship not found")
     return {"userId": user_id, "movieId": movie_id, "progress_percentage": progress}
+
+@router.get("/{user_id}/watched")
+def get_watched_movies(user_id: str, service: UserService = Depends(get_service)):
+    return service.get_watched_movies(user_id)
+
+@router.get("/{user_id}/recommended")
+def get_recommended_movies(user_id: str, service: UserService = Depends(get_service)):
+    return service.get_recommended_movies(user_id)
+
+@router.get("/{user_id}/reviews")
+def get_user_reviews(user_id: str, service: UserService = Depends(get_service)):
+    return service.get_user_reviews(user_id)
