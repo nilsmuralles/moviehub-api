@@ -137,3 +137,11 @@ def toggle_recommends(user_id: str, movie_id: int, service: UserService = Depend
 @router.get("/{user_id}/recommends/{movie_id}")
 def is_recommending(user_id: str, movie_id: int, service: UserService = Depends(get_service)):
     return {"recommended": service.is_recommending(user_id, movie_id)}
+
+@router.post("/{follower_id}/follows/{followed_id}/toggle")
+def toggle_follows(follower_id: str, followed_id: str, service: UserService = Depends(get_service)):
+    return service.toggle_follows(follower_id, followed_id)
+
+@router.get("/{follower_id}/follows/{followed_id}")
+def is_following(follower_id: str, followed_id: str, service: UserService = Depends(get_service)):
+    return {"following": service.is_following(follower_id, followed_id)}

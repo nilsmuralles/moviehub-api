@@ -313,3 +313,47 @@ class UserRepository:
                 movieId=movie_id,
             )
             return result.single()["recommended"]
+
+    def toggle_follows(self, follower_id: str, followed_id: str) -> dict:
+        with self.driver.session() as session:
+            existing = session.run(
+                """
+                MATCH (u:User {userId: $followerId})-[r:FOLLOWS]->(v:User {userId: $followedId})
+                RETURN r
+                """,
+                followerId=follower_id,
+                followedId=followed_id,
+            ).single()
+
+            if existing:
+                session.run(
+                    """
+                    MATCH (u:User {userId: $followerId})-[r:FOLLOWS]->(v:User {userId: $followedId})
+                    DELETE r
+                    """,
+                    followerId=follower_id,
+                    followedId=followed_id,
+                )
+                return {"status": "unfollowed"}
+            else:
+                session.run(
+                    """
+                    MATCH (u:User {userId: $followerId}), (v:User {userId: $followedId})
+                    CREATE (u)-[:FOLLOWS {since: toString(datetime()), notified: false, trust_level: 0.5}]->(v)
+                    """,
+                    followerId=follower_id,
+                    followedId=followed_id,
+                )
+                return {"status": "followed"}
+
+    def is_following(self, follower_id: str, followed_id: str) -> bool:
+        with self.driver.session() as session:
+            result = session.run(
+                """
+                MATCH (u:User {userId: $followerId})-[:FOLLOWS]->(v:User {userId: $followedId})
+                RETURN count(*) > 0 AS following
+                """,
+                followerId=follower_id,
+                followedId=followed_id,
+            )
+            return result.single()["following"]

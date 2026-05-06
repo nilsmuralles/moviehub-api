@@ -72,3 +72,9 @@ class UserService:
 
     def is_recommending(self, user_id: str, movie_id: int) -> bool:
         return self.repository.is_recommending(user_id, movie_id)
+
+    def toggle_follows(self, follower_id: str, followed_id: str) -> dict:
+        return self.repository.toggle_follows(follower_id, followed_id)
+
+    def is_following(self, follower_id: str, followed_id: str) -> bool:
+        return self.repository.is_following(follower_id, followed_id)
