@@ -54,15 +54,20 @@ def delete_review(review_id: int, service: ReviewService = Depends(get_service))
     if not deleted:
         raise HTTPException(status_code=404, detail="Review not found")
     
-@router.delete("/bulk")
+@router.delete("/bulk/delete")
 def delete_reviews(data: ReviewBulkAction, service: ReviewService = Depends(get_service)):
     service.delete_reviews(data.reviewIds)
     return {"message": "Reviews deleted"}
 
-@router.put("/reviews/hide")
+@router.put("/bulk/hide")
 def hide_reviews(data: ReviewBulkAction, service: ReviewService = Depends(get_service)):
     service.hide_reviews(data.reviewIds)
     return {"message": "Reviews hidden"}
+
+@router.put("/bulk/unhide")
+def unhide_reviews(data: ReviewBulkAction, service: ReviewService = Depends(get_service)):
+    service.unhide_reviews(data.reviewIds)
+    return {"message": "Reviews unhidden"}
 
 @router.get("/movie/{movie_id}", response_model=list[Review])
 def get_reviews_by_movie(movie_id: int, service: ReviewService = Depends(get_service)):
