@@ -54,7 +54,7 @@ def delete_review(review_id: int, service: ReviewService = Depends(get_service))
     if not deleted:
         raise HTTPException(status_code=404, detail="Review not found")
     
-@router.delete("/bulk/delete")
+@router.post("/bulk/delete")
 def delete_reviews(data: ReviewBulkAction, service: ReviewService = Depends(get_service)):
     service.delete_reviews(data.reviewIds)
     return {"message": "Reviews deleted"}

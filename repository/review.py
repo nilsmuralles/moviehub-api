@@ -107,7 +107,7 @@ class ReviewRepository:
             )
             return result.single()["deleted"] > 0
         
-    def hide_reviews(self, review_ids: list[int]):
+    def hide_reviews(self, review_ids: list[str]) -> None:
         with self.driver.session() as session:
             session.run(
                 """
@@ -115,10 +115,10 @@ class ReviewRepository:
                 WHERE r.reviewId IN $reviewIds
                 SET r.hidden = true
                 """,
-                reviewIds=review_ids
+                reviewIds=review_ids,
             )
 
-    def unhide_reviews(self, review_ids: list[int]):
+    def unhide_reviews(self, review_ids: list[str]) -> None:
         with self.driver.session() as session:
             session.run(
                 """
@@ -126,20 +126,10 @@ class ReviewRepository:
                 WHERE r.reviewId IN $reviewIds
                 REMOVE r.hidden
                 """,
-                reviewIds=review_ids
+                reviewIds=review_ids,
             )
 
-    def delete_review(self, review_id: int):
-        with self.driver.session() as session:
-            session.run(
-                """
-                MATCH (r:Review {reviewId: $reviewId})
-                DETACH DELETE r
-                """,
-                reviewId=review_id
-            )
-
-    def delete_reviews(self, review_ids: list[int]):
+    def delete_reviews(self, review_ids: list[str]) -> None:
         with self.driver.session() as session:
             session.run(
                 """
@@ -147,7 +137,7 @@ class ReviewRepository:
                 WHERE r.reviewId IN $reviewIds
                 DETACH DELETE r
                 """,
-                reviewIds=review_ids
+                reviewIds=review_ids,
             )
 
     def find_by_movie(self, movie_id: int) -> list[dict]:

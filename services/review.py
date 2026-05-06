@@ -29,9 +29,11 @@ class ReviewService:
     def delete(self, review_id: str) -> bool:
         return self.repository.delete(review_id)
     
-    def hide_reviews(self, review_ids: list[int]):
+    def hide_reviews(self, review_ids: list[str]) -> None:
         self.repository.hide_reviews(review_ids)
 
-    def get_by_movie(self, movie_id: int) -> list[Review]:
-        records = self.repository.find_by_movie(movie_id)
-        return [Review(**r) for r in records]
+    def unhide_reviews(self, review_ids: list[str]) -> None:
+        self.repository.unhide_reviews(review_ids)
+
+    def delete_reviews(self, review_ids: list[str]) -> None:
+        self.repository.delete_reviews(review_ids)
